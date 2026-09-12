@@ -82,6 +82,14 @@ Navigate to:
 
 Have fun, and join the team of contributors!
 
+## You can find resource details under management api
+ - http://localhost:9000/q/metrics
+ - http://localhost:9000/q/health
+ - http://localhost:9000/q/info
+
+## test coverage details can be found 
+ - target/site/jacoco/index.html
+
 ## Troubleshooting
 
 Using **IntelliJ**, in case the generated code is not recognized and you have compilation failures, you may need to add `target/.../jaxrs` folder as "generated sources".
