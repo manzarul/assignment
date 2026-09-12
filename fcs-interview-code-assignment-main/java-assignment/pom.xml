@@ -15,6 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.release>17</maven.compiler.release>
+        <jacoco-plugin.version>0.8.12</jacoco-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -71,7 +72,16 @@
             <artifactId>quarkus-openapi-generator-server</artifactId>
             <version>2.4.7</version>
         </dependency>
-
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jacoco</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-panache-mock</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -113,6 +123,113 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-plugin.version}</version>
+                <executions>
+                    <!-- Instruments classes and attaches the JaCoCo runtime agent to the JVM
+                        that runs your unit tests (Surefire). @QuarkusTest classes are loaded
+                        through QuarkusClassLoader and are covered by the quarkus-jacoco
+                        extension instead - excluding them here avoids double-instrumentation
+                        errors. -->
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <exclClassLoaders>*QuarkusClassLoader</exclClassLoaders>
+                            <destFile>${project.build.directory}/jacoco-quarkus.exec</destFile>
+                            <append>true</append>
+                        </configuration>
+                    </execution>
+                    <!-- Same idea, but for the separate JVM process that Failsafe/
+                        @QuarkusIntegrationTest starts - appends into the same exec file. -->
+                    <execution>
+                        <id>prepare-agent-integration</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${project.build.directory}/jacoco-quarkus.exec</destFile>
+                            <append>true</append>
+                        </configuration>
+                    </execution>
+                    <!-- Generates the HTML/XML/CSV coverage report after unit tests run,
+                        bound to the 'test' phase so `mvn test` produces it -->
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco-quarkus.exec</dataFile>
+                        </configuration>
+                    </execution>
+                    <!-- Re-generates the report after integration tests too, now including
+                        both unit-test and integration-test coverage from the same exec file -->
+                    <execution>
+                        <id>report-integration</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco-quarkus.exec</dataFile>
+                        </configuration>
+                    </execution>
+                    <!-- Optional: fail the build if coverage drops below a threshold -->
+                    <execution>
+                        <id>jacoco-check</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco-quarkus.exec</dataFile>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.80</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- Runs *IT classes (e.g. @QuarkusIntegrationTest) against the packaged app.
+                    Bound to the 'verify' phase by convention, so use `mvn verify`, not
+                    `mvn test`, to actually execute these. -->
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${surefire-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                                <maven.home>${maven.home}</maven.home>
+                                <!-- passes the JaCoCo agent's VM args through to the packaged
+                                    app process that @QuarkusIntegrationTest starts -->
+                                <quarkus.test.arg-line>${argLine}</quarkus.test.arg-line>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -146,6 +263,7 @@
                                         <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
                                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                                         <maven.home>${maven.home}</maven.home>
+                                        <quarkus.test.arg-line>${argLine}</quarkus.test.arg-line>
                                     </systemPropertyVariables>
                                 </configuration>
                             </execution>

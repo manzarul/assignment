@@ -13,7 +13,9 @@ public class WarehouseRepository implements WarehouseStore, PanacheRepository<Db
 
   @Override
   public List<Warehouse> getAll() {
-    return this.listAll().stream().map(DbWarehouse::toWarehouse).toList();
+    // Archived warehouses are a soft-deleted state (archivedAt set) and should not appear in
+    // the default listing - only currently-active warehouses do.
+    return this.list("archivedAt is null").stream().map(DbWarehouse::toWarehouse).toList();
   }
 
   @Override

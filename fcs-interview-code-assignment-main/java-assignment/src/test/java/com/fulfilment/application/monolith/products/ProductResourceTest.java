@@ -8,13 +8,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.panache.common.Sort;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -200,5 +204,44 @@ public class ProductResourceTest {
 
     assertEquals(404, exception.getResponse().getStatus());
     verify(productRepository, never()).delete(any(Product.class));
+  }
+
+  /**
+   * {@link ProductResource.ErrorMapper} is tested as a plain object, not resolved via JAX-RS/CDI
+   * provider discovery, since its only collaborator is an {@link ObjectMapper}. That's injected
+   * via reflection to avoid needing a full {@code @QuarkusTest} context just for this class.
+   */
+  @Nested
+  class ErrorMapperTest {
+
+    private final ProductResource.ErrorMapper errorMapper = new ProductResource.ErrorMapper();
+
+    @BeforeEach
+    void injectObjectMapper() throws NoSuchFieldException, IllegalAccessException {
+      Field field = ProductResource.ErrorMapper.class.getDeclaredField("objectMapper");
+      field.setAccessible(true);
+      field.set(errorMapper, new ObjectMapper());
+    }
+
+    @Test
+    @DisplayName("maps a WebApplicationException using its own status code and message")
+    void toResponse_withWebApplicationException_usesItsStatusCodeAndMessage() {
+      WebApplicationException exception =
+          new WebApplicationException("Product with id of 42 does not exist.", 404);
+
+      Response response = errorMapper.toResponse(exception);
+
+      assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    @DisplayName("maps any other exception to a 500")
+    void toResponse_withGenericException_defaultsTo500() {
+      RuntimeException exception = new RuntimeException("boom");
+
+      Response response = errorMapper.toResponse(exception);
+
+      assertEquals(500, response.getStatus());
+    }
   }
 }
