@@ -23,15 +23,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-/**
- * Unit tests for {@link WarehouseResourceImpl}.
- *
- * <p>{@code WarehouseResourceImpl} is a plain CDI bean whose only collaborators are the four
- * injected fields ({@link WarehouseRepository} and the three operation ports). All four are
- * replaced with Mockito mocks via {@code @InjectMock}, so these tests exercise only the
- * resource's own mapping/validation logic (domain {@code Warehouse} &lt;-&gt; API
- * {@code Warehouse} bean, and the 404 checks) without touching Panache or a database.
- */
+
 @QuarkusTest
 class WarehouseResourceImplTest {
 

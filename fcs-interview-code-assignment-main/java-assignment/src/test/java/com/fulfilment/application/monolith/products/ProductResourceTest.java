@@ -3,12 +3,15 @@ package com.fulfilment.application.monolith.products;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -22,6 +25,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import java.util.Optional;
 
 public class ProductResourceTest {
 
@@ -36,7 +40,6 @@ public class ProductResourceTest {
     productResource.productRepository = productRepository;
   }
 
-  // --- get() ---
 
   @Test
   public void testGetReturnsAllProductsSortedByName() {
@@ -92,6 +95,10 @@ public class ProductResourceTest {
     Product product = new Product();
     product.id = null;
     product.name = "BESTÅ";
+
+    PanacheQuery<Product> mockQuery = mock(PanacheQuery.class);
+    when(mockQuery.firstResultOptional()).thenReturn(Optional.empty());
+    when(productRepository.find("name", product.name)).thenReturn(mockQuery);
 
     // when
     Response response = productResource.create(product);

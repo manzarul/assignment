@@ -24,7 +24,7 @@ Make sure that `JAVA_HOME` environment variables has been set, and that a JDK 17
 
 ## Building the demo
 
-Execute the Maven build on the root of the project:
+Execute the Maven build on the root of the project: 'assignment/fcs-interview-code-assignment-main/java-assignment'
 
 ```sh
 ./mvnw package
@@ -89,6 +89,7 @@ Have fun, and join the team of contributors!
 
 ## test coverage details can be found 
  - target/site/jacoco/index.html
+    or when CI will run you can find download link 'Upload coverage HTML report section'
 
 ## Troubleshooting
 

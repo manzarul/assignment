@@ -15,17 +15,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for {@link WarehouseRepository}.
- *
- * <p>{@code WarehouseRepository} implements {@code PanacheRepository<DbWarehouse>} (the
- * repository pattern), not active-record entities. {@link io.quarkus.panache.mock.PanacheMock}
- * only supports active-record ({@code PanacheEntityBase}) classes - trying to mock a
- * {@code PanacheRepositoryBase} with it is a silent no-op (the real Hibernate calls still run
- * underneath), so these tests instead run for real against the test datasource inside
- * {@code @TestTransaction}, which automatically rolls back everything after each test method -
- * no manual cleanup needed and no cross-test pollution.
- */
+
 @QuarkusTest
 class WarehouseRepositoryTest {
 

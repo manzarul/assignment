@@ -24,15 +24,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-/**
- * Unit tests for {@link ReplaceWarehouseUseCase}.
- *
- * <p>NOTE: {@code Warehouse} is assumed to be a plain mutable model with public fields
- * (businessUnitCode, location, archivedAt, createdAt), matching how it's accessed directly
- * inside the use case under test. If your actual model uses a constructor/builder or getters
- * instead of public fields, adjust the helper {@link #warehouse(String, LocalDateTime)} method
- * accordingly.
- */
+
 @ExtendWith(MockitoExtension.class)
 class ReplaceWarehouseUseCaseTest {
 

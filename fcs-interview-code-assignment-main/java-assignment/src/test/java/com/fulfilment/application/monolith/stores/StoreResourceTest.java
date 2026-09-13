@@ -19,20 +19,11 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.lang.reflect.Field;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for {@link StoreResource}.
- *
- * <p>{@link StoreRepository} and {@link LegacyStoreManagerGateway} are replaced with Mockito
- * mocks via {@code @InjectMock} (from {@code quarkus-junit5-mockito}), so no real persistence or
- * "legacy system" side effects happen. {@code get()}/{@code getSingle()} call the {@link Store}
- * Panache entity directly, so those two tests use {@link PanacheMock} instead.
- */
 @QuarkusTest
 class StoreResourceTest {
 
@@ -202,11 +193,7 @@ class StoreResourceTest {
     assertEquals(404, ex.getResponse().getStatus());
   }
 
-  /**
-   * {@link StoreResource.ErrorMapper} is tested as a plain object (not resolved via JAX-RS/CDI)
-   * since its only collaborator is an {@link ObjectMapper}, which we inject via reflection to
-   * avoid depending on RESTEasy's provider-discovery machinery in a unit test.
-   */
+  
   @Nested
   class ErrorMapperTest {
 
