@@ -20,13 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-/**
- * Unit tests for {@link WarehouseValidationService}.
- *
- * <p>Its two collaborators ({@link WarehouseStore} and {@link LocationResolver}) are ports
- * (plain interfaces), so they're mocked directly with Mockito - no Panache or CDI context is
- * involved in this class at all.
- */
+
 @ExtendWith(MockitoExtension.class)
 class WarehouseValidationServiceTest {
 

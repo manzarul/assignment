@@ -17,22 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for {@link StoreRepository}.
- *
- * <p>{@link Store} is a Panache active-record entity, so its static finder ({@code findById})
- * only works inside a real Panache/Hibernate runtime. {@link PanacheMock} lets us stub that
- * static call without needing a database, while still running inside a (lightweight)
- * {@code @QuarkusTest} so CDI/Arc wiring for {@link StoreRepository} itself is real.
- *
- * <p>Note: {@code PanacheMock.mock(Store.class)} only intercepts the entity's <em>static</em>
- * delegate methods, not instance methods called on a plain {@code new Store(...)} - those would
- * still hit real Hibernate. So wherever a test needs to verify or no-op an instance call like
- * {@code persist()}/{@code delete()}, we use a genuine {@code Mockito.mock(Store.class)} instead
- * of a real instance. Public fields on a Mockito mock are still ordinary field reads/writes
- * (Mockito only intercepts methods), so setting {@code mock.name = "..."} works exactly like on
- * a real instance.
- */
+
 @QuarkusTest
 class StoreRepositoryTest {
 

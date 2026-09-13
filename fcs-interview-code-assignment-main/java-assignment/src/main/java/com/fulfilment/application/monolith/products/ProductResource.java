@@ -18,6 +18,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import java.util.List;
+import java.util.Map;
+
 import org.jboss.logging.Logger;
 
 @Path("product")
@@ -51,7 +53,11 @@ public class ProductResource {
     if (product.id != null) {
       throw new WebApplicationException("Id was invalidly set on request.", 422);
     }
-
+     if (productRepository.find("name", product.name).firstResultOptional().isPresent()) {
+        return Response.status(Response.Status.CONFLICT)
+                .entity(Map.of("error", "Product already exists"))
+                .build();
+    }
     productRepository.persist(product);
     return Response.ok(product).status(201).build();
   }
